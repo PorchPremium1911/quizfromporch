@@ -1,529 +1,588 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>QuizFromPorch</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;font-family:'Segoe UI',sans-serif;background:radial-gradient(circle at top left,#8b5cf6,#1e1b4b 60%,#0f172a);min-height:100vh;color:#fff}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle at 20% 20%,rgba(255,255,255,.15),transparent 30%),radial-gradient(circle at 80% 10%,rgba(0,198,255,.15),transparent 25%);pointer-events:none;animation:aurora 12s ease-in-out infinite alternate}
-#particles{position:fixed;inset:0;pointer-events:none;z-index:0}
-@keyframes aurora{0%{transform:scale(1) rotate(0deg)}100%{transform:scale(1.1) rotate(3deg)}}
-.shooting-star{position:fixed;top:0;left:0;width:2px;height:2px;background:#fff;border-radius:999px;box-shadow:0 0 8px #fff,0 0 16px #93c5fd,0 0 24px #c4b5fd;pointer-events:none;z-index:1}
-.shooting-star::after{content:'';position:absolute;top:0;left:-120px;width:120px;height:2px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.9),transparent);transform:translateY(0)}
-@keyframes shoot{0%{transform:translate3d(0,0,0) rotate(25deg);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translate3d(420px,180px,0) rotate(25deg);opacity:0}}
-.confetti{position:fixed;top:-10px;width:10px;height:10px;border-radius:2px;opacity:.9;animation:fall 4s linear forwards;z-index:9998}
-@keyframes fall{to{transform:translateY(110vh) rotate(720deg);opacity:0}}
-.container{max-width:1200px;margin:30px auto;padding:20px;position:relative;z-index:1}
-.card{background:rgba(255,255,255,.10);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.18);border-radius:28px;padding:28px;box-shadow:0 25px 60px rgba(0,0,0,.35);margin-bottom:20px}
-input,textarea,select,button{width:100%;padding:14px 16px;margin:8px 0;border:none;border-radius:14px;font-size:15px;outline:none}
-input,textarea,select{background:rgba(255,255,255,.12);color:#fff}
-input::placeholder,textarea::placeholder{color:rgba(255,255,255,.7)}
-button{background:linear-gradient(135deg,#06b6d4,#3b82f6,#8b5cf6);background-size:200% 200%;color:#fff;font-weight:700;cursor:pointer;transition:.35s;box-shadow:0 10px 30px rgba(59,130,246,.35)}
-button:hover{transform:translateY(-3px) scale(1.02);background-position:right center;box-shadow:0 15px 40px rgba(139,92,246,.45)}
-.secondary{background:rgba(255,255,255,.12);box-shadow:none}
-.danger{background:linear-gradient(135deg,#ef4444,#ec4899)}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
-.quiz-btn{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.10);padding:14px;border-radius:20px;cursor:pointer;margin:10px 0;transition:.3s;border:1px solid rgba(255,255,255,.08)}
-.quiz-btn:hover{transform:translateY(-4px) scale(1.01);background:rgba(255,255,255,.15)}
-.quiz-btn img{width:70px;height:70px;object-fit:cover;border-radius:14px}
-.top-right{position:fixed;top:15px;right:15px;width:auto;z-index:10}
-.timer{font-size:24px;font-weight:700;color:#ffd166}
-.table{width:100%;border-collapse:collapse;background:rgba(255,255,255,.06);border-radius:12px;overflow:hidden}
-.table th,.table td{padding:12px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left}
-.badge{display:inline-block;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.12);margin:4px}
-.correct{color:#90ee90}.wrong{color:#ffb3b3}
-.toast-container{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:10px}
-.toast{min-width:320px;max-width:90vw;padding:14px 18px;border-radius:16px;color:#fff;font-weight:600;box-shadow:0 15px 40px rgba(0,0,0,.3);backdrop-filter:blur(12px);animation:toastIn .35s ease, toastOut .35s ease 3.15s forwards}
-.toast.success{background:linear-gradient(90deg,#00c853,#43a047)}
-.toast.error{background:linear-gradient(90deg,#ff416c,#ff4b2b)}
-.toast.warning{background:linear-gradient(90deg,#f7971e,#ffd200);color:#222}
-.toast.info{background:linear-gradient(90deg,#00c6ff,#0072ff)}
-.section-title{display:flex;align-items:center;justify-content:space-between;gap:10px}
-@keyframes toastIn{from{opacity:0;transform:translateY(-20px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
-@keyframes toastOut{to{opacity:0;transform:translateY(-20px) scale(.95)}}
-</style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QuizFromPorch - Premium Online</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
+
+    <style>
+        :root {
+            --primary: #8b5cf6;
+            --secondary: #06b6d4;
+            --accent: #f472b6;
+            --bg: #0f172a;
+        }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body {
+            margin: 0;
+            background: radial-gradient(circle at top left, #1e1b4b, #0f172a 50%, #000);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        #particles { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+        .container { max-width: 1000px; margin: 40px auto; padding: 20px; position: relative; z-index: 1; }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            padding: 30px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            margin-bottom: 25px;
+            animation: fadeIn 0.6s ease-out;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        h1, h2, h3 { background: linear-gradient(90deg, #fff, #93c5fd); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        input, textarea, select, button {
+            width: 100%; padding: 15px; margin: 10px 0; border-radius: 15px; border: none; outline: none; font-size: 16px;
+        }
+        input, textarea, select { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.1); }
+        
+        button {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white; font-weight: bold; cursor: pointer; transition: 0.3s;
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.3);
+        }
+        button:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(139, 92, 246, 0.5); }
+        button.secondary { background: rgba(255,255,255,0.1); box-shadow: none; }
+        button.danger { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        
+        .quiz-item {
+            background: rgba(255,255,255,0.05); padding: 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 20px;
+        }
+        .quiz-item:hover { background: rgba(255,255,255,0.1); transform: scale(1.02); }
+        .quiz-item img { width: 80px; height: 80px; object-fit: cover; border-radius: 15px; }
+
+        .shooting-star {
+            position: fixed; width: 2px; height: 2px; background: #fff; border-radius: 50%;
+            opacity: 0; pointer-events: none; z-index: 0;
+        }
+        @keyframes shoot {
+            0% { transform: translate(0,0) rotate(30deg) scale(0); opacity: 1; }
+            100% { transform: translate(600px, 400px) rotate(30deg) scale(1.5); opacity: 0; }
+        }
+
+        .timer { font-size: 2rem; font-weight: bold; text-align: center; color: #fbbf24; text-shadow: 0 0 15px rgba(251,191,36,0.5); }
+        
+        .toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            padding: 15px 30px; border-radius: 50px; z-index: 9999;
+            backdrop-filter: blur(10px); animation: slideDown 0.4s ease;
+        }
+        @keyframes slideDown { from { top: -100px; } to { top: 20px; } }
+        .success { background: rgba(16, 185, 129, 0.9); }
+        .error { background: rgba(239, 68, 68, 0.9); }
+
+        .top-nav { position: fixed; top: 20px; right: 20px; z-index: 100; display: flex; gap: 10px; }
+        .top-nav button { width: auto; padding: 10px 20px; margin: 0; }
+        
+        .preview-img { width: 100%; max-height: 300px; object-fit: contain; border-radius: 15px; margin: 10px 0; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        th { color: var(--secondary); }
+    </style>
 </head>
 <body>
-<button class="top-right secondary" onclick="goHome()">🏠 Home</button>
-<canvas id="particles"></canvas>
-<div class="toast-container" id="toastContainer"></div>
-<div class="container" id="app"></div>
-<script>
-const ADMIN_USER='PorchTHEADMIN';
-const ADMIN_PASS='ilovacanva';
-const ADMIN_SECRET='PORCHTHEADMIN';
-const DEFAULT_STUDENT_CODE='Student69';
 
-const db={
- get:(k,f)=>JSON.parse(localStorage.getItem(k)||JSON.stringify(f)),
- set:(k,v)=>localStorage.setItem(k,JSON.stringify(v))
+<div class="top-nav">
+    <button class="secondary" onclick="goHome()">🏠 Home</button>
+</div>
+
+<canvas id="particles"></canvas>
+<div id="toast-area"></div>
+
+<div class="container" id="main-content">
+    <div class="card" style="text-align:center">
+        <h1>🚀 QuizFromPorch Online</h1>
+        <p>กำลังเชื่อมต่อฐานข้อมูลพรีเมียม...</p>
+    </div>
+</div>
+
+<script>
+// --- 1. FIREBASE CONFIG (จากรูปที่คุณแคปมา) ---
+const firebaseConfig = {
+  apiKey: "AIzaSyAcRitfsnOhr3kRWT72nzqIU6hFA_LC6nk",
+  authDomain: "examfromporch.firebaseapp.com",
+  databaseURL: "https://examfromporch-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "examfromporch",
+  storageBucket: "examfromporch.firebasestorage.app",
+  messagingSenderId: "234413793212",
+  appId: "1:234413793212:web:47e3ccc131196bb679d5b9",
+  measurementId: "G-LHMQVMGS5T"
 };
 
-if(!localStorage.getItem('quizzes'))db.set('quizzes',[]);
-if(!localStorage.getItem('results'))db.set('results',[]);
-if(!localStorage.getItem('studentCodes'))db.set('studentCodes',[DEFAULT_STUDENT_CODE]);
-if(!localStorage.getItem('users'))db.set('users',[]);
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-let state={currentUser:null,currentQuiz:null,currentQuestion:0,answers:[],remaining:0,timer:null};
+// --- 2. STATE & VARIABLES ---
+let state = {
+    view: 'home',
+    user: null,
+    quizzes: [],
+    results: [],
+    users: [],
+    studentCodes: ['Student69'],
+    currentQuiz: null,
+    answers: [],
+    timer: null,
+    timeLeft: 0
+};
 
-const app=html=>document.getElementById('app').innerHTML=html;
-const uid=()=>Date.now()+Math.random().toString(16).slice(2);
-function notify(message, type='info'){
- const container = document.getElementById('toastContainer');
- const toast = document.createElement('div');
- toast.className = `toast ${type}`;
- toast.textContent = message;
- container.appendChild(toast);
- setTimeout(() => {
-  toast.remove();
- }, 3500);
-}
-function goHome(){clearInterval(state.timer);initParticles();
-startShootingStars();
-renderHome();}
-
-function launchConfetti(){
- const colors = ['#f43f5e','#f59e0b','#10b981','#3b82f6','#8b5cf6','#ec4899'];
- for(let i=0;i<180;i++){
-  const el = document.createElement('div');
-  el.className = 'confetti';
-  el.style.left = Math.random()*100 + 'vw';
-  el.style.background = colors[Math.floor(Math.random()*colors.length)];
-  el.style.width = el.style.height = (6 + Math.random()*8) + 'px';
-  el.style.animationDuration = (2 + Math.random()*3) + 's';
-  document.body.appendChild(el);
-  setTimeout(()=>el.remove(), 5000);
- }
+// --- 3. DATABASE SYNC (ดึงข้อมูลจาก Cloud ตลอดเวลา) ---
+function initSync() {
+    db.ref('/').on('value', (snapshot) => {
+        const data = snapshot.val() || {};
+        state.quizzes = data.quizzes || [];
+        state.results = data.results || [];
+        state.users = data.users || [];
+        state.studentCodes = data.studentCodes || ['Student69'];
+        
+        // ถ้าอยู่ที่หน้า Home หรือหน้าที่มีการโหลด ให้รีเฟรชหน้าจอ
+        render();
+    });
 }
 
-function createShootingStar(){
- const star = document.createElement('div');
- star.className = 'shooting-star';
- star.style.left = Math.random() * window.innerWidth * 0.7 + 'px';
- star.style.top = Math.random() * window.innerHeight * 0.35 + 'px';
- star.style.animation = `shoot ${1.2 + Math.random()*1.2}s linear forwards`;
- document.body.appendChild(star);
- setTimeout(() => star.remove(), 3000);
+async function cloudSave(path, data) {
+    try {
+        await db.ref(path).set(data);
+    } catch (e) {
+        showToast("เกิดข้อผิดพลาด: " + e.message, "error");
+    }
 }
 
-function startShootingStars(){
- createShootingStar();
- setInterval(() => {
-  if(Math.random() < 0.85) createShootingStar();
- }, 2500);
+// --- 4. NAVIGATION & CORE UI ---
+function render() {
+    const root = document.getElementById('main-content');
+    if (state.view === 'home') renderHome(root);
+    else if (state.view === 'admin-login') renderAdminLogin(root);
+    else if (state.view === 'admin-dash') renderAdminDash(root);
+    else if (state.view === 'student-auth') renderStudentAuth(root);
+    else if (state.view === 'quiz-list') renderQuizList(root);
+    else if (state.view === 'quiz-play') renderQuizPlay(root);
 }
 
-function initParticles(){
- const canvas = document.getElementById('particles');
- const ctx = canvas.getContext('2d');
- let particles = [];
-
- function resize(){
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
- }
- resize();
- window.addEventListener('resize', resize);
-
- for(let i=0;i<70;i++){
-  particles.push({
-   x: Math.random()*canvas.width,
-   y: Math.random()*canvas.height,
-   r: Math.random()*2 + 1,
-   dx: (Math.random()-.5)*0.5,
-   dy: (Math.random()-.5)*0.5
-  });
- }
-
- function animate(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.fillStyle = 'rgba(255,255,255,0.7)';
-  particles.forEach(p=>{
-   p.x += p.dx;
-   p.y += p.dy;
-   if(p.x<0||p.x>canvas.width) p.dx *= -1;
-   if(p.y<0||p.y>canvas.height) p.dy *= -1;
-   ctx.beginPath();
-   ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-   ctx.fill();
-  });
-  requestAnimationFrame(animate);
- }
- animate();
+function goHome() {
+    clearInterval(state.timer);
+    state.view = 'home';
+    render();
 }
 
-function renderHome(){
- app(`
- <div class='card' style='text-align:center'>
-  <h1 style='font-size:3.2rem;margin-bottom:8px;background:linear-gradient(90deg,#fff,#93c5fd,#c4b5fd);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-shadow:0 0 30px rgba(255,255,255,.25)'>✨ QuizFromPorch</h1>
-  <p style='font-size:1.1rem;opacity:.9'>ระบบสร้างข้อสอบสุดล้ำ ดีไซน์ระดับพรีเมียม โดยพอร์ช 💙</p>
-  <div class='grid'>
-   <button onclick='renderAdminLogin()'>👑 Admin Login</button>
-   <button onclick='renderStudentAuth()'>🎓 Student Register/Login</button>
-  </div>
- </div>`);
+function showToast(msg, type) {
+    const area = document.getElementById('toast-area');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerText = msg;
+    area.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
 }
 
-function renderAdminLogin(){
- app(`
- <div class='card'>
-  <h2>👑 Admin Login</h2>
-  <input id='user' placeholder='Username'>
-  <input id='pass' type='password' placeholder='Password'>
-  <input id='secret' placeholder='หรือ Secret Code'>
-  <button onclick='adminLogin()'>เข้าสู่ระบบ</button>
- </div>`);
+// --- 5. VIEWS ---
+
+function renderHome(root) {
+    root.innerHTML = `
+        <div class="card" style="text-align:center">
+            <h1 style="font-size:3.5rem; margin-bottom:10px">✨ QuizFromPorch</h1>
+            <p style="font-size:1.2rem; opacity:0.8">ระบบข้อสอบออนไลน์อัจฉริยะ โดย Porch_DevYT</p>
+            <div class="grid" style="margin-top:30px">
+                <button onclick="state.view='admin-login'; render()">👑 Admin Control</button>
+                <button onclick="state.view='student-auth'; render()">🎓 Student Portal</button>
+            </div>
+        </div>
+    `;
 }
 
-function adminLogin(){
- if((user.value===ADMIN_USER&&pass.value===ADMIN_PASS)||secret.value===ADMIN_SECRET){
-  notify('เข้าสู่ระบบสำเร็จ ✅','success');
-  renderAdminDashboard();
- }else notify('รหัสไม่ถูกต้อง ❌','error');
+function renderAdminLogin(root) {
+    root.innerHTML = `
+        <div class="card" style="max-width:500px; margin:auto">
+            <h2>🔐 Admin Access</h2>
+            <input type="text" id="admU" placeholder="Admin Username">
+            <input type="password" id="admP" placeholder="Password">
+            <button onclick="handleAdminLogin()">Login</button>
+            <button class="secondary" onclick="goHome()">Back</button>
+        </div>
+    `;
 }
 
-function renderAdminDashboard(){
- const results=db.get('results',[]);
- const codes=db.get('studentCodes',[]);
- const users=db.get('users',[]);
- app(`
- <div class='card'>
-  <div class='section-title'>
-   <h2>🛠 Admin Dashboard</h2>
-   <span class='badge'>${users.length} Users</span>
-  </div>
-  <button onclick='renderQuizBuilder()'>➕ สร้างข้อสอบใหม่</button>
-
-  <h3>🔐 Secret Codes</h3>
-  <input id='newCode' placeholder='เช่น PPPP1234'>
-  <button onclick='addStudentCode()'>เพิ่ม Secret Code</button>
-  <div>
-   ${codes.map(c=>`<span class='badge'>${c} <button style="width:auto;padding:4px 8px;margin-left:6px" class='danger' onclick="deleteCode('${c}')">✕</button></span>`).join('')}
-  </div>
- </div>
-
- <div class='card'>
-  <h2>👥 จัดการบัญชีผู้ใช้</h2>
-  ${users.length?`
-  <table class='table'>
-   <tr><th>Username</th><th>จัดการ</th></tr>
-   ${users.map(u=>`<tr><td>${u.username}</td><td><button class='danger' style='width:auto' onclick="deleteUser('${u.username}')">🗑 ลบ</button></td></tr>`).join('')}
-  </table>`:'ยังไม่มีผู้ใช้'}
- </div>
-
- <div class='card'>
-  <h2>📊 ผลสอบนักเรียน</h2>
-  ${results.length?`
-  <table class='table'>
-   <tr><th>ชื่อ</th><th>ข้อสอบ</th><th>คะแนน</th><th>%</th><th>เวลา</th></tr>
-   ${results.map(r=>`<tr><td>${r.student}</td><td>${r.quizTitle}</td><td>${r.score}/${r.total}</td><td>${r.percentage ?? Math.round((r.score/r.total)*100)}%</td><td>${r.date}</td></tr>`).join('')}
-  </table>`:'ยังไม่มีผลสอบ'}
- </div>`);
+function handleAdminLogin() {
+    const u = document.getElementById('admU').value;
+    const p = document.getElementById('admP').value;
+    if (u === 'PorchTHEADMIN' && p === 'ilovacanva') {
+        state.view = 'admin-dash';
+        showToast("ยินดีต้อนรับ แอดมินพอร์ช", "success");
+        render();
+    } else {
+        showToast("รหัสไม่ถูกต้อง!", "error");
+    }
 }
 
-function deleteUser(username){
- const users = db.get('users', []).filter(u => u.username !== username);
- db.set('users', users);
-
- // ลบผลสอบของผู้ใช้นี้ด้วย
- const results = db.get('results', []).filter(r => r.student !== username);
- db.set('results', results);
-
- notify(`ลบบัญชี ${username} สำเร็จ 🗑️`, 'success');
- renderAdminDashboard();
+function renderAdminDash(root) {
+    root.innerHTML = `
+        <div class="card">
+            <h2>🛠 แผงควบคุมแอดมิน</h2>
+            <div class="grid">
+                <button onclick="renderCreateQuiz()">➕ สร้างข้อสอบใหม่</button>
+                <button class="danger" onclick="clearResults()">🗑 ล้างประวัติสอบทั้งหมด</button>
+            </div>
+        </div>
+        <div class="card">
+            <h3>🔑 Secret Codes (สำหรับสมัครสมาชิก)</h3>
+            <div style="display:flex; gap:10px">
+                <input id="newCode" placeholder="เพิ่มโค้ดใหม่...">
+                <button style="width:auto" onclick="addSecretCode()">Add</button>
+            </div>
+            <div style="margin-top:10px">
+                ${state.studentCodes.map(c => `<span style="background:var(--primary); padding:5px 12px; border-radius:20px; margin-right:5px; font-size:0.9rem">${c}</span>`).join('')}
+            </div>
+        </div>
+        <div class="card">
+            <h3>📊 ผลการสอบออนไลน์ล่าสุด</h3>
+            <div style="overflow-x:auto">
+                <table>
+                    <thead><tr><th>ชื่อนักเรียน</th><th>ข้อสอบ</th><th>คะแนน</th><th>วันที่</th></tr></thead>
+                    <tbody>
+                        ${state.results.map(r => `<tr><td>${r.name}</td><td>${r.quiz}</td><td>${r.score}/${r.total}</td><td>${r.date}</td></tr>`).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
 }
 
-function deleteCode(code){
- if(code === DEFAULT_STUDENT_CODE){
-  return notify('ไม่สามารถลบ Student69 ได้ ⚠️', 'warning');
- }
-
- const codes = db.get('studentCodes', []).filter(c => c !== code);
- db.set('studentCodes', codes);
-
- notify(`ลบ Secret Code ${code} สำเร็จ 🔐`, 'success');
- renderAdminDashboard();
+function renderCreateQuiz() {
+    const root = document.getElementById('main-content');
+    root.innerHTML = `
+        <div class="card">
+            <h2>📝 ออกข้อสอบใหม่</h2>
+            <input id="qTitle" placeholder="ชื่อวิชา / หัวข้อ">
+            <input id="qTime" type="number" placeholder="เวลาที่ให้ทำ (นาที)">
+            <p>อัปโหลดรูปหน้าปกข้อสอบ (เลือกหรือไม่ก็ได้):</p>
+            <input type="file" id="qImg" accept="image/*" onchange="previewImg(this, 'coverPreview')">
+            <img id="coverPreview" class="preview-img" style="display:none">
+            
+            <hr style="border:1px solid rgba(255,255,255,0.1); margin:20px 0">
+            <div id="questionsContainer"></div>
+            
+            <button class="secondary" onclick="addQuestionUI()">➕ เพิ่มคำถาม</button>
+            <button onclick="saveQuiz()">🚀 บันทึกและเผยแพร่ออนไลน์</button>
+            <button class="danger" onclick="state.view='admin-dash'; render()">ยกเลิก</button>
+        </div>
+    `;
+    addQuestionUI();
 }
 
-
-function addStudentCode(){
- const code=newCode.value.trim();
- if(!code)return;
- const codes=db.get('studentCodes',[]);
- codes.push(code);
- db.set('studentCodes',[...new Set(codes)]);
- notify('เพิ่ม Secret Code สำเร็จ ✅','success');
- renderAdminDashboard();
+let currentQuestions = [];
+function addQuestionUI() {
+    const container = document.getElementById('questionsContainer');
+    const qId = Date.now();
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.style.background = 'rgba(0,0,0,0.2)';
+    div.innerHTML = `
+        <h4>ข้อที่ ${container.children.length + 1}</h4>
+        <textarea class="q-text" placeholder="โจทย์คำถาม..."></textarea>
+        <p>รูปประกอบคำถาม (ถ้ามี):</p>
+        <input type="file" onchange="previewImg(this, 'p-${qId}')">
+        <img id="p-${qId}" class="preview-img" style="display:none">
+        <div class="grid">
+            <input class="choice" placeholder="ตัวเลือก A">
+            <input class="choice" placeholder="ตัวเลือก B">
+            <input class="choice" placeholder="ตัวเลือก C">
+            <input class="choice" placeholder="ตัวเลือก D">
+        </div>
+        <select class="correct">
+            <option value="0">ข้อที่ถูกคือ A</option>
+            <option value="1">ข้อที่ถูกคือ B</option>
+            <option value="2">ข้อที่ถูกคือ C</option>
+            <option value="3">ข้อที่ถูกคือ D</option>
+        </select>
+    `;
+    container.appendChild(div);
 }
 
-function renderQuizBuilder(){
- app(`
- <div class='card'>
-  <h2>📝 สร้างข้อสอบ</h2>
-  <input id='quizTitle' placeholder='ชื่อข้อสอบ'>
-  <input id='quizTime' type='number' placeholder='เวลา (นาที)'>
-  <label>ADD File Photo</label>
-  <input id='quizImage' type='file' accept='image/*'>
-  <div id='questions'></div>
-  <button onclick='addQuestion()'>➕ เพิ่มคำถาม</button>
-  <button onclick='publishQuiz()'>🚀 Publish</button>
- </div>`);
- addQuestion();
+function previewImg(input, targetId) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = document.getElementById(targetId);
+            img.src = e.target.result;
+            img.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
 }
 
-function addQuestion(){
- const box=document.getElementById('questions');
- const div=document.createElement('div');
- div.className='card';
- div.innerHTML=`
- <h3>📝 คำถามใหม่</h3>
- <textarea class='q' placeholder='คำถาม'></textarea>
- <label>🖼️ รูปภาพของข้อนี้</label>
- <input class='q-image' type='file' accept='image/*'>
- <input class='a' placeholder='Choice A'>
- <input class='b' placeholder='Choice B'>
- <input class='c' placeholder='Choice C'>
- <input class='d' placeholder='Choice D'>
- <select class='correct'>
-  <option value='0'>คำตอบที่ถูก: A</option>
-  <option value='1'>B</option>
-  <option value='2'>C</option>
-  <option value='3'>D</option>
- </select>`;
- box.appendChild(div);
+async function saveQuiz() {
+    const title = document.getElementById('qTitle').value;
+    const time = document.getElementById('qTime').value;
+    const cover = document.getElementById('coverPreview').src || "";
+    
+    if (!title || !time) return showToast("กรุณากรอกข้อมูลให้ครบ!", "error");
+
+    const qNodes = document.querySelectorAll('#questionsContainer .card');
+    const questions = Array.from(qNodes).map(node => {
+        return {
+            text: node.querySelector('.q-text').value,
+            img: node.querySelector('.preview-img').src || "",
+            choices: Array.from(node.querySelectorAll('.choice')).map(i => i.value),
+            correct: parseInt(node.querySelector('.correct').value)
+        };
+    });
+
+    const newQuiz = { id: Date.now(), title, time, cover, questions };
+    const updated = [...state.quizzes, newQuiz];
+    
+    await cloudSave('quizzes', updated);
+    showToast("บันทึกข้อสอบออนไลน์สำเร็จ!", "success");
+    state.view = 'admin-dash';
+    render();
 }
 
-async function publishQuiz(){
- const title=quizTitle.value.trim();
- const time=parseInt(quizTime.value||1);
- if(!title)return notify('กรุณาใส่ชื่อข้อสอบ','warning');
-
- const questionCards=[...document.querySelectorAll('#questions .card')];
-
- async function fileToBase64(file){
-  return new Promise(resolve=>{
-   if(!file) return resolve('');
-   const reader=new FileReader();
-   reader.onload=e=>resolve(e.target.result);
-   reader.readAsDataURL(file);
-  });
- }
-
- const questions=[];
- for(const el of questionCards){
-  const imageFile = el.querySelector('.q-image').files[0];
-  const image = await fileToBase64(imageFile);
-  questions.push({
-   question: el.querySelector('.q').value,
-   image,
-   choices: ['a','b','c','d'].map(c=>el.querySelector('.'+c).value),
-   correct: +el.querySelector('.correct').value
-  });
- }
-
- const save=(image='')=>{
-  const quizzes=db.get('quizzes',[]);
-  quizzes.push({id:uid(),title,time,image,questions});
-  db.set('quizzes',quizzes);
-  notify('Publish สำเร็จ 🚀','success');
-  renderAdminDashboard();
- };
-
- const file=quizImage.files[0];
- if(file){
-  const reader=new FileReader();
-  reader.onload=e=>save(e.target.result);
-  reader.readAsDataURL(file);
- }else save();
+async function addSecretCode() {
+    const code = document.getElementById('newCode').value.trim();
+    if (!code) return;
+    const updated = [...state.studentCodes, code];
+    await cloudSave('studentCodes', updated);
+    document.getElementById('newCode').value = "";
 }
 
-function renderStudentAuth(){
- app(`
- <div class='grid'>
-  <div class='card'>
-   <h2>📝 สมัครสมาชิก</h2>
-   <input id='regUser' placeholder='ตั้งชื่อผู้ใช้'>
-   <input id='regPass' type='password' placeholder='ตั้งรหัสผ่าน'>
-   <input id='regCode' placeholder='Secret Code จากแอดมิน'>
-   <button onclick='register()'>สมัครสมาชิก</button>
-  </div>
-  <div class='card'>
-   <h2>🔑 เข้าสู่ระบบ</h2>
-   <input id='loginUser' placeholder='Username'>
-   <input id='loginPass' type='password' placeholder='Password'>
-   <button onclick='studentLogin()'>เข้าสู่ระบบ</button>
-  </div>
- </div>`);
+async function clearResults() {
+    if (confirm("ต้องการลบประวัติการสอบทั้งหมดใช่หรือไม่?")) {
+        await cloudSave('results', []);
+        showToast("ล้างข้อมูลแล้ว", "success");
+    }
 }
 
-function register(){
- const username = document.getElementById('regUser').value.trim();
- const password = document.getElementById('regPass').value.trim();
- const code = document.getElementById('regCode').value.trim();
+// --- STUDENT LOGIC ---
 
- if(!username || !password || !code){
-  return notify('กรุณากรอกข้อมูลให้ครบทุกช่อง ⚠️','warning');
- }
-
- const codes = db.get('studentCodes', []);
- if(!codes.includes(code)){
-  return notify('Secret Code ไม่ถูกต้อง ❌','error');
- }
-
- const users = db.get('users', []);
- if(users.find(u => u.username.toLowerCase() === username.toLowerCase())){
-  return notify('ชื่อผู้ใช้นี้มีอยู่แล้ว ❌','error');
- }
-
- users.push({ username, password });
- db.set('users', users);
-
- notify('สมัครสมาชิกสำเร็จ ✅','success');
-
- // ล้างข้อมูลในช่อง
- document.getElementById('regUser').value = '';
- document.getElementById('regPass').value = '';
- document.getElementById('regCode').value = '';
+function renderStudentAuth(root) {
+    root.innerHTML = `
+        <div class="grid">
+            <div class="card">
+                <h2>📝 สมัครสมาชิกใหม่</h2>
+                <input id="regU" placeholder="ตั้ง Username">
+                <input id="regP" type="password" placeholder="ตั้ง Password">
+                <input id="regC" placeholder="รหัส Secret Code จากครู">
+                <button onclick="handleRegister()">Register</button>
+            </div>
+            <div class="card">
+                <h2>🔑 เข้าสู่ระบบ</h2>
+                <input id="logU" placeholder="Username">
+                <input id="logP" type="password" placeholder="Password">
+                <button onclick="handleLogin()">Login</button>
+            </div>
+        </div>
+        <button class="secondary" onclick="goHome()">Back</button>
+    `;
 }
 
+async function handleRegister() {
+    const u = regU.value.trim(), p = regP.value.trim(), c = regC.value.trim();
+    if (!u || !p || !c) return showToast("กรอกข้อมูลไม่ครบ", "error");
+    if (!state.studentCodes.includes(c)) return showToast("Secret Code ไม่ถูกต้อง!", "error");
+    if (state.users.find(x => x.u === u)) return showToast("ชื่อนี้มีคนใช้แล้ว", "error");
 
-function studentLogin(){
- const users=db.get('users',[]);
- const userObj=users.find(u=>u.username===loginUser.value.trim()&&u.password===loginPass.value.trim());
- if(!userObj) return notify('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง ❌','error');
- state.currentUser=userObj.username;
- notify('เข้าสู่ระบบสำเร็จ ✅','success');
- renderQuizSelection();
+    const updated = [...state.users, { u, p }];
+    await cloudSave('users', updated);
+    showToast("สมัครสมาชิกสำเร็จ! กรุณาล็อกอิน", "success");
 }
 
-function renderQuizSelection(){
- const quizzes=db.get('quizzes',[]);
- app(`<div class='card'><h2>📚 เลือกข้อสอบ</h2>
- ${quizzes.map(q=>`<div class='quiz-btn' onclick="startQuiz('${q.id}')">${q.image?`<img src='${q.image}'>`:''}<div><h3>${q.title}</h3><p>${q.questions.length} ข้อ • ${q.time} นาที</p></div></div>`).join('')||'ยังไม่มีข้อสอบ'}
- </div>`);
+function handleLogin() {
+    const u = logU.value, p = logP.value;
+    const user = state.users.find(x => x.u === u && x.p === p);
+    if (user) {
+        state.user = u;
+        state.view = 'quiz-list';
+        showToast("สวัสดีคุณ " + u, "success");
+        render();
+    } else {
+        showToast("ชื่อผู้ใช้หรือรหัสผ่านผิด", "error");
+    }
 }
 
-function shuffleArray(array){
- const arr = [...array];
- for(let i = arr.length - 1; i > 0; i--){
-  const j = Math.floor(Math.random() * (i + 1));
-  [arr[i], arr[j]] = [arr[j], arr[i]];
- }
- return arr;
+function renderQuizList(root) {
+    root.innerHTML = `
+        <div class="card">
+            <h2>📚 ข้อสอบที่เปิดให้ทำตอนนี้</h2>
+            <div id="quizContainer">
+                ${state.quizzes.map(q => `
+                    <div class="quiz-item" onclick="startQuiz(${q.id})">
+                        <img src="${q.cover || 'https://via.placeholder.com/100?text=Quiz'}">
+                        <div>
+                            <h3>${q.title}</h3>
+                            <p>เวลา: ${q.time} นาที | จำนวน: ${q.questions.length} ข้อ</p>
+                        </div>
+                    </div>
+                `).join('')}
+                ${state.quizzes.length === 0 ? '<p>ยังไม่มีข้อสอบออนไลน์ในขณะนี้...</p>' : ''}
+            </div>
+            <button class="secondary" onclick="state.user=null; goHome()">Logout</button>
+        </div>
+    `;
 }
 
-function startQuiz(id){
- const quizData=db.get('quizzes',[]).find(q=>q.id===id);
- const quiz = {
-  ...quizData,
-  questions: shuffleArray(quizData.questions)
- };
-
- state.currentQuiz=quiz;
- state.currentQuestion=0;
- state.answers=Array(quiz.questions.length).fill(null);
- state.remaining=quiz.time*60;
- clearInterval(state.timer);
- state.timer=setInterval(()=>{
-  state.remaining--;
-  if(state.remaining<=0) submitQuiz();
-  else renderQuestion();
- },1000);
- renderQuestion();
+function startQuiz(id) {
+    const quiz = state.quizzes.find(q => q.id === id);
+    state.currentQuiz = quiz;
+    state.answers = new Array(quiz.questions.length).fill(null);
+    state.view = 'quiz-play';
+    state.timeLeft = quiz.time * 60;
+    
+    state.timer = setInterval(() => {
+        state.timeLeft--;
+        if (state.timeLeft <= 0) finishQuiz();
+        else updateTimerUI();
+    }, 1000);
+    
+    state.currQIndex = 0;
+    render();
 }
 
-function renderQuestion(){
- const q=state.currentQuiz.questions[state.currentQuestion];
- const m=Math.floor(state.remaining/60);
- const s=String(state.remaining%60).padStart(2,'0');
- app(`
- <div class='card'>
-  <div class='timer'>⏰ ${m}:${s}</div>
-  <h2>ข้อ ${state.currentQuestion+1}/${state.currentQuiz.questions.length}</h2>
-  <p>${q.question}</p>
-  ${q.image ? `<img src='${q.image}' style='max-width:100%;border-radius:18px;margin:12px 0;box-shadow:0 10px 30px rgba(0,0,0,.25)'>` : ''}
-  ${q.choices.map((c,i)=>`<button onclick='selectChoice(${i})' class='secondary'>${c}</button>`).join('')}
-  <button onclick='nextQuestion()'>${state.currentQuestion===state.currentQuiz.questions.length-1?'ส่งข้อสอบ':'ถัดไป'}</button>
- </div>`);
+function updateTimerUI() {
+    const el = document.getElementById('timer-display');
+    if (el) {
+        const m = Math.floor(state.timeLeft / 60);
+        const s = state.timeLeft % 60;
+        el.innerText = `⏰ ${m}:${s < 10 ? '0'+s : s}`;
+    }
 }
 
-function selectChoice(i){state.answers[state.currentQuestion]=i;notify('เลือกคำตอบแล้ว ✅','success');}
-
-function nextQuestion(){
- if(state.currentQuestion<state.currentQuiz.questions.length-1){
-  state.currentQuestion++;
-  renderQuestion();
- }else submitQuiz();
+function renderQuizPlay(root) {
+    const q = state.currentQuiz.questions[state.currQIndex];
+    root.innerHTML = `
+        <div class="card">
+            <div id="timer-display" class="timer">⏰ --:--</div>
+            <hr>
+            <h3>ข้อที่ ${state.currQIndex + 1} / ${state.currentQuiz.questions.length}</h3>
+            <p style="font-size:1.3rem">${q.text}</p>
+            ${q.img ? `<img src="${q.img}" class="preview-img">` : ''}
+            
+            <div class="grid">
+                ${q.choices.map((c, i) => `
+                    <button class="${state.answers[state.currQIndex] === i ? '' : 'secondary'}" 
+                            onclick="selectAnswer(${i})">
+                        ${String.fromCharCode(65+i)}. ${c}
+                    </button>
+                `).join('')}
+            </div>
+            
+            <div style="display:flex; gap:10px; margin-top:20px">
+                <button class="secondary" onclick="prevQ()" ${state.currQIndex === 0 ? 'disabled' : ''}>ก่อนหน้า</button>
+                <button onclick="nextQ()">
+                    ${state.currQIndex === state.currentQuiz.questions.length - 1 ? 'ส่งข้อสอบ' : 'ถัดไป'}
+                </button>
+            </div>
+        </div>
+    `;
+    updateTimerUI();
 }
 
-function submitQuiz(){
- launchConfetti();
- clearInterval(state.timer);
- const quiz = state.currentQuiz;
- let score = 0;
- let review = '';
-
- quiz.questions.forEach((q, i) => {
-  const correct = q.correct === state.answers[i];
-  if (correct) score++;
-  review += `<p class='${correct ? 'correct' : 'wrong'}'>ข้อ ${i + 1}: ${correct ? '✓ ถูก' : '✗ ผิด'} (ตอบที่ถูก: ${q.choices[q.correct]})</p>`;
- });
-
- const percentage = Math.round((score / quiz.questions.length) * 100);
-
- db.set('results', [...db.get('results', []), {
-  student: state.currentUser,
-  quizTitle: quiz.title,
-  score,
-  total: quiz.questions.length,
-  percentage,
-  date: new Date().toLocaleString('th-TH')
- }]);
-
- app(`
- <div class='card' style='text-align:center'>
-  <h1>🎉 ส่งข้อสอบเรียบร้อย</h1>
-  <h2>คะแนน ${score}/${quiz.questions.length}</h2>
-  <h2 style='font-size:2.5rem;background:linear-gradient(90deg,#34d399,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent'>${percentage}%</h2>
-  ${review}
-  <button onclick='renderLeaderboard()'>🏆 ดู Leaderboard</button>
-  <button onclick='renderQuizSelection()'>📚 กลับไปเลือกข้อสอบ</button>
- </div>`);
+function selectAnswer(i) {
+    state.answers[state.currQIndex] = i;
+    render();
 }
 
-function renderLeaderboard(){
- const results = db.get('results', [])
-  .sort((a,b) => b.percentage - a.percentage || b.score - a.score)
-  .slice(0, 20);
-
- app(`
- <div class='card'>
-  <h1 style='text-align:center'>🏆 Leaderboard</h1>
-  ${results.length ? `
-  <table class='table'>
-   <tr>
-    <th>#</th>
-    <th>ชื่อ</th>
-    <th>ข้อสอบ</th>
-    <th>คะแนน</th>
-    <th>เปอร์เซ็นต์</th>
-   </tr>
-   ${results.map((r, i) => `
-   <tr>
-    <td>${i + 1}</td>
-    <td>${i === 0 ? '🥇 ' : i === 1 ? '🥈 ' : i === 2 ? '🥉 ' : ''}${r.student}</td>
-    <td>${r.quizTitle}</td>
-    <td>${r.score}/${r.total}</td>
-    <td>${r.percentage}%</td>
-   </tr>`).join('')}
-  </table>` : '<p>ยังไม่มีข้อมูลคะแนน</p>'}
-  <button onclick='renderQuizSelection()'>📚 กลับไปเลือกข้อสอบ</button>
- </div>`);
+function nextQ() {
+    if (state.currQIndex < state.currentQuiz.questions.length - 1) {
+        state.currQIndex++;
+        render();
+    } else {
+        finishQuiz();
+    }
 }
 
-renderHome();
+function prevQ() {
+    if (state.currQIndex > 0) {
+        state.currQIndex--;
+        render();
+    }
+}
+
+async function finishQuiz() {
+    clearInterval(state.timer);
+    let score = 0;
+    state.currentQuiz.questions.forEach((q, i) => {
+        if (q.correct === state.answers[i]) score++;
+    });
+
+    const newResult = {
+        name: state.user,
+        quiz: state.currentQuiz.title,
+        score: score,
+        total: state.currentQuiz.questions.length,
+        date: new Date().toLocaleString('th-TH')
+    };
+
+    const updated = [...state.results, newResult];
+    await cloudSave('results', updated);
+
+    document.getElementById('main-content').innerHTML = `
+        <div class="card" style="text-align:center">
+            <h1>🎊 สอบเสร็จแล้ว!</h1>
+            <h2 style="font-size:4rem; color:var(--secondary)">${score} / ${state.currentQuiz.questions.length}</h2>
+            <p>คะแนนของคุณถูกบันทึกเข้าระบบเรียบร้อยแล้ว</p>
+            <button onclick="state.view='quiz-list'; render()">กลับหน้าวิชา</button>
+        </div>
+    `;
+    
+    // สร้าง Confetti แบบง่าย
+    for(let i=0; i<50; i++) {
+        const c = document.createElement('div');
+        c.style.cssText = `position:fixed; width:10px; height:10px; background:hsl(${Math.random()*360},70%,50%); top:-10px; left:${Math.random()*100}vw; z-index:999; border-radius:2px; pointer-events:none;`;
+        document.body.appendChild(c);
+        c.animate([ {transform:'translateY(0) rotate(0deg)'}, {transform:`translateY(110vh) rotate(${Math.random()*720}deg)`} ], {duration: 2000+Math.random()*2000, easing:'linear'});
+        setTimeout(() => c.remove(), 4000);
+    }
+}
+
+// --- 6. VISUAL EFFECTS ---
+function initParticles() {
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    let pts = [];
+    for(let i=0; i<60; i++) pts.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*2, s: Math.random()*0.5});
+    function anim() {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        ctx.fillStyle = "rgba(255,255,255,0.3)";
+        pts.forEach(p => {
+            p.y -= p.s;
+            if (p.y < 0) p.y = canvas.height;
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+        });
+        requestAnimationFrame(anim);
+    }
+    anim();
+}
+
+function initShootingStars() {
+    setInterval(() => {
+        const star = document.createElement('div');
+        star.className = 'shooting-star';
+        star.style.top = Math.random() * 50 + '%';
+        star.style.left = Math.random() * 50 + '%';
+        star.style.animation = 'shoot 1s ease-out forwards';
+        document.body.appendChild(star);
+        setTimeout(() => star.remove(), 1000);
+    }, 4000);
+}
+
+// Start
+initSync();
+initParticles();
+initShootingStars();
+
 </script>
 </body>
 </html>
